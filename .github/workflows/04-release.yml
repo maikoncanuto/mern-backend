@@ -1,0 +1,35 @@
+name: ci-release
+
+on:
+  push:
+    tags:
+      - 'v**'
+
+env:
+  ENV_GIT_USERNAME: 'Filipe Santos'
+  ENV_GIT_EMAIL: 'filipe.l.santos@galp.com'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v3
+
+      - name: Configure git
+        run: |
+          git config --local user.name ${{ env.ENV_GIT_USERNAME }}
+          git config --local user.email ${{ env.ENV_GIT_EMAIL }}
+
+      - name: Create Release from Tag
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: release/${{ github.ref }}
+          body: |
+            Create release from tag auto
+          draft: false
+          prerelease: false

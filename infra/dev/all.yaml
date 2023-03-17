@@ -1,0 +1,114 @@
+apiVersion: external-secrets.io/v1beta1
+kind: SecretStore
+metadata:
+  name: mern-secret-dev
+spec:
+  provider:
+    aws:
+      service: SecretsManager
+      region: eu-west-1
+      auth:
+        jwt:
+          serviceAccountRef:
+            name: eso-sa-mern-project-mern-gov-dev
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: mern-external-secret-dev
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: mern-secret-dev
+    kind: SecretStore
+  target:
+    name: mern-k8s-secret-dev
+    creationPolicy: Owner
+  data:
+  - secretKey: external_cluster_user
+    remoteRef:
+      key: mern-project/mern-gov-dev
+      property: external_cluster_user
+  - secretKey: external_cluster_password
+    remoteRef:
+      key: mern-project/mern-gov-dev
+      property: external_cluster_password
+  - secretKey: external_cluster_instance
+    remoteRef:
+      key: mern-project/mern-gov-dev
+      property: external_cluster_instance
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mern-gov-dev-backend
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mern-gov-dev-backend-app
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mern-gov-dev-backend-app
+    spec:
+      containers:
+      - image: ghcr.io/galpenergia/mern-backend:latest
+        imagePullPolicy: Always
+        name: mern-gov-dev-backend-app
+        ports:
+        - containerPort: 8080
+        env:
+          - name: database_user
+            valueFrom:
+              secretKeyRef:
+                name: mern-k8s-secret-dev
+                key: external_cluster_user
+                optional: false 
+          - name: database_instance
+            valueFrom:
+              secretKeyRef:
+                name: mern-k8s-secret-dev
+                key: external_cluster_instance
+                optional: false 
+          - name: database_password
+            valueFrom:
+              secretKeyRef:
+                name: mern-k8s-secret-dev
+                key: external_cluster_password
+                optional: false
+      imagePullSecrets:
+        - name: github-pat-dockerconfig
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mern-gov-dev-backend
+spec:
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: mern-gov-dev-backend-app
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mern-gov-dev-backend
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: mern-gov-dev-backend
+              port:
+                number: 80

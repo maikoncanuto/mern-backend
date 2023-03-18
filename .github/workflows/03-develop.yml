@@ -19,7 +19,7 @@ jobs:
     steps:
       - name: Execute change version
         run: |
-          REF_NAME="${GITHUB_HEAD_REF}"
+          REF_NAME="${GITHUB_REF##*/}"
 
           echo $REF_NAME
 

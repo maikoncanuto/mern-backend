@@ -96,6 +96,10 @@ jobs:
                   git config --global user.name ${{ env.ENV_GIT_USERNAME }}
                   git config --global user.email ${{ env.ENV_GIT_EMAIL }}
 
+            - name: Checkout branch
+              run: |
+                  git checkout ${{ github.head_ref }}
+
             - name: Execute change version
               run: |
                   REF_NAME="${GITHUB_HEAD_REF}"
@@ -114,7 +118,7 @@ jobs:
 
             - name: Push changes
               run: |
-                  git push ${{ github.head_ref }}
+                  git push origin ${{ github.head_ref }}
 
     packages:
         needs: [ change-version ]

@@ -7,7 +7,7 @@ on:
 
 env:
     ENV_CHECKOUT_CACHE: 'npm'
-    ENV_NODE_VERSION: '16.x'
+    ENV_NODE_VERSION: '18.x'
     ENV_REGISTRY_URL: 'https://npm.pkg.github.com'
     ENV_NODE_ENV: 'development'
     ENV_GIT_USERNAME: 'Filipe Santos'
@@ -15,41 +15,7 @@ env:
 
 jobs:
 
-    kuberentes:
-        runs-on: ubuntu-latest
-        environment: development
-        steps:
-            - name: Checkout source code
-              uses: actions/checkout@v3
-
-            - name: Replace Kubernetes Variables
-              run: |
-                  YAML_FILE="infra/kubernetes.yaml"
-                  while IFS= read -r line; do
-                    while [[ $line =~ \$\{([a-zA-Z0-9_]+)\} ]]; do
-                      var_name=${BASH_REMATCH[1]}
-
-                      echo $var_name
-
-                      var_value="vars."$(echo $var_name)
-
-                      echo $var_value
-
-                      echo "VAR_VALUE=$(echo $var_value)" >> $GITHUB_ENV
-
-                      line=${line//${BASH_REMATCH[0]}/${{ env.VAR_VALUE }}}
-                    done
-                    echo "$line" >> "${YAML_FILE}_new"
-                  done < "$YAML_FILE"
-                  mv "${YAML_FILE}_new" "$YAML_FILE"
-
-            - name: cat
-              run: |
-                  echo $GITHUB_ENV
-                  cat ./infra/kubernetes.yaml
-
     scan-git:
-        needs: [ kuberentes ]
         runs-on: ubuntu-latest
         steps:
             - name: Checkout repository

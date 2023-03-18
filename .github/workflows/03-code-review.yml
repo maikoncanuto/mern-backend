@@ -1,8 +1,8 @@
-name: ci-develop
+name: ci-code-review
 
 on:
-  push:
-    branches: [ develop ]
+  pull_request:
+    branches: [develop]
 
 env:
   ENV_CHECKOUT_CACHE: 'npm'
@@ -14,14 +14,18 @@ env:
 
 jobs:
 
-  get-name-branch:
+  scan-git:
     runs-on: ubuntu-latest
     steps:
-      - name: Execute change version
-        run: |
-          REF_NAME="${GITHUB_REF##*/}"
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-          echo $REF_NAME
+      - name: Validate if commit follows the pattern in description "#<number> - description"
+        run: |
+          if ! git log -1 --pretty=%B | grep -qE '.+'; then
+            echo "Error: Commit description does not follow the pattern 'description'"
+            exit 1
+          fi
 
   scan-config:
     runs-on: ubuntu-latest
@@ -71,7 +75,7 @@ jobs:
           CI: true
 
   change-version:
-    needs: [ scan-config, scan-packages ]
+    needs: [ scan-git, scan-config, scan-packages ]
     timeout-minutes: 1
     runs-on: ubuntu-latest
 
@@ -81,10 +85,6 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-
-      - name: Get branch name
-        run: |
-          echo "BRANCH_NAME=${{ github.event.base_ref }}" >> $GITHUB_ENV
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -111,6 +111,9 @@ jobs:
           else
             echo "This branch is not a feature or bugfix or hotfix branch"
           fi
+
+      - name: Push changes
+        run: git push
 
       - name: Push changes
         run: git push
@@ -169,7 +172,7 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
 
       - name: Install Dependencies
-        run: npm ci --force
+        run: npm ci
 
       - name: Lint
         run: npm run lint
@@ -200,7 +203,7 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
 
       - name: Install Dependencies
-        run: npm ci --force
+        run: npm ci
 
       - name: Lint
         run: npm run test
@@ -231,7 +234,7 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
 
       - name: Install Dependencies
-        run: npm ci --force
+        run: npm ci
 
       - name: Lint
         run: npm run test:e2e
@@ -262,141 +265,7 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
 
       - name: Install Dependencies
-        run: npm ci --force
+        run: npm ci
 
       - name: Coverage
         run: npm run test:cov
-
-
-  build-and-push-package:
-    timeout-minutes: 1
-    runs-on: ubuntu-latest
-    needs: [ quality-test-unit, quality-test-integration, quality-test-coverage ]
-
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Configurar Git
-        run: |
-          git config --global user.name "Github Actions"
-          git config --global user.email "actions@github.com"
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.ENV_NODE_VERSION }}
-
-      - name: Get name branch
-        run: |
-          BRANCH_NAME=${GITHUB_REF#refs/heads/}
-          echo "Nome da branch: $BRANCH_NAME"
-          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
-
-      - name: Restore Cached Dependencies
-        uses: actions/cache@v3
-        id: npm-cache
-        env:
-          cache-name: cache-node-modules
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-
-      - name: Get Package Version
-        run: |
-          export VERSION=$(node -p "require('./package.json').version")-${{ env.BRANCH_NAME }}.${{ github.run_id }}
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-
-      - name: Update version package.json
-        run: |
-          npm version ${{ env.VERSION }}
-
-      - name: Install Dependencies
-        run: npm ci --force
-
-      - name: Build Artifact
-        run: npm run build
-        env:
-          NODE_ENV: ${{ env.ENV_NODE_ENV }}
-
-      - name: Publish Artifact to Github Packages
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.ENV_NODE_VERSION }}
-          registry-url: ${{ env.ENV_REGISTRY_URL }}
-          scope: ${{ github.repository_owner }}
-      - run: npm ci --force
-      - run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  build-and-push-image:
-    timeout-minutes: 5
-    runs-on: ubuntu-latest
-    needs: [ build-and-push-package ]
-
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v4
-        with:
-          images: ghcr.io/${{ github.repository }}
-          tags: |
-            type=ref,event=branch
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-
-  codeql-scan:
-    timeout-minutes: 5
-    continue-on-error: true
-    
-    runs-on: ubuntu-latest
-    needs: [ build-and-push-image ]
-
-    permissions:
-      security-events: write
-
-      actions: read
-      contents: read
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
-        with:
-          languages: typescript, javascript
-
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v2
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2

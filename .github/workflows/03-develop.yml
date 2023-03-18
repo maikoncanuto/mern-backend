@@ -370,30 +370,26 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-  scan-vulnerability-image:
-    timeout-minutes: 10
-    continue-on-error: true
+  codeql-scan:
     runs-on: ubuntu-latest
-    needs: [ build-and-push-image ]
 
     permissions:
+      security-events: write
+
+      actions: read
       contents: read
-      packages: write
 
     steps:
-      - name: Get name branch
-        run: |
-          BRANCH_NAME=${GITHUB_REF#refs/heads/}
-          echo "Nome da branch: $BRANCH_NAME"
-          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Scan vulnerability from Github Packages
-        uses: aquasecurity/trivy-action@master
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
         with:
-          scan-type: image
-          image-ref: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ env.BRANCH_NAME }}
-          format: 'sarif'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
-          output: 'trivy-results.sarif'
+          languages: typescript, javascript
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v2
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2

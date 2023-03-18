@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { TodoBaseDatabaseAccess } from '../../database/TodoBaseDatabaseAccess';
 import { IInsertTodo } from 'usecases/todo/addTodo/entityGateways';
 import { Todo } from '../../../entities/todo';
+
 @Injectable()
 export class InsertTodo extends TodoBaseDatabaseAccess implements IInsertTodo {
   async execute(todo: Todo): Promise<Todo> {

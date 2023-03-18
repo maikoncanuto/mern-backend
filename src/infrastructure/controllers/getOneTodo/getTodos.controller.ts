@@ -6,7 +6,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ApiResponseType } from '../../common/swagger/response.decorator';
-import { FindOneTodo } from '../../../infrastructure/entityGateways/getOneTodo/findOneTodo';
+import { FindOneTodo } from '../../entityGateways/getOneTodo/findOneTodo';
 import { getOneTodoUsecase } from '../../../usecases/todo/getOneTodo/getTodos.usecase';
 import { GetOneTodoResponse } from './getOneTodoResponse';
 import { TodoNotFoundError } from '../../../usecases/todo/getOneTodo/todoNotFoundError';

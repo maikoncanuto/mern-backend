@@ -1,5 +1,5 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { TodoDatabaseModel, TodoDocument } from '../database/schemas';
+import { TodoDatabaseModel, TodoDocument } from './schemas';
 import { Model } from 'mongoose';
 
 export abstract class TodoBaseDatabaseAccess {

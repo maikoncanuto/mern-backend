@@ -1,10 +1,17 @@
 {
   "name": "@maikoncanuto/api-galp",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Example the API-GALP",
-  "author": "Maikon and Andre",
+  "author": "@galpenergia",
   "private": false,
   "license": "UNLICENSED",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": {
+      "url": "https://github.com/galpenergia/mern-backend.git",
+      "type": "git"
+  },
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
@@ -23,7 +30,6 @@
   },
   "dependencies": {
     "@nestjs/common": "^9.3.10",
-    "@nestjs/config": "^2.3.1",
     "@nestjs/core": "^9.3.10",
     "@nestjs/mongoose": "^9.2.2",
     "@nestjs/platform-express": "^9.3.10",
@@ -49,7 +55,6 @@
     "@types/supertest": "^2.0.12",
     "@typescript-eslint/eslint-plugin": "^5.55.0",
     "@typescript-eslint/parser": "^5.55.0",
-    "cross-env": "^7.0.3",
     "eslint": "^8.36.0",
     "eslint-config-prettier": "^8.7.0",
     "eslint-plugin-prettier": "^4.2.1",
@@ -91,12 +96,5 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
-  },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
-  },
-  "repository": {
-    "url": "https://github.com/galpenergia/mern-backend.git",
-    "type": "git"
   }
 }

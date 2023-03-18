@@ -1,36 +1,40 @@
 import { TodoFindResult } from '../../../entities/todoFindResult';
-import { Todo } from '../../../entities/todo';
+import { Todo } from '../../../entities/Todo';
 import { IFindTodos } from './entityGateways';
 import { getTodosUsecase } from './getTodos.usecase';
 
-describe('Usecase - AddTodo', () => {
-  let usecase: getTodosUsecase;
+describe('getTodosUsecase', () => {
+  let findTodosMock: jest.Mocked<IFindTodos>;
+  let useCase: getTodosUsecase;
 
-  it('OK', async () => {
-    //arrange
-    const totalReturns = 10;
-    const insertedTodoId = '1';
-    const findTodos: IFindTodos = {
-      execute: async function (
-        content: string,
-        pageSize: number,
-        pageNumber: number,
-      ): Promise<TodoFindResult> {
-        const t = new Todo();
-        t.content = 'hello';
-
-        const r = new TodoFindResult();
-        r.todos.push(t);
-        r.total = totalReturns;
-        return r;
-      },
+  beforeEach(() => {
+    findTodosMock = {
+      execute: jest.fn(),
     };
 
-    //act
-    usecase = new getTodosUsecase(findTodos);
-    const result: TodoFindResult = await usecase.execute('helloo', 10, 1);
+    useCase = new getTodosUsecase(findTodosMock);
+  });
 
-    //assert
-    expect(result.total).toBe(totalReturns);
+  it('should find Todos', async () => {
+    const name = 'Test Todo';
+    const pageSize = 10;
+    const pageNumber = 1;
+
+    const itens = [
+      { id: '1', content: 'Test Todo 1', isDone: false, createdDate: new Date(), updatedDate: new Date() },
+      { id: '2', content: 'Test Todo 2', isDone: true, createdDate: new Date(), updatedDate: new Date()},
+    ];
+
+    const todoFindResult: TodoFindResult = {
+      total: itens.length,
+      todos: itens,
+    };
+
+    findTodosMock.execute.mockResolvedValueOnce(todoFindResult);
+
+    const result = await useCase.execute(name, pageSize, pageNumber);
+
+    expect(findTodosMock.execute).toHaveBeenCalledWith(name, pageSize, pageNumber);
+    expect(result).toEqual(todoFindResult);
   });
 });

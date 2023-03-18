@@ -1,51 +1,41 @@
 import { TodoFindResult } from '../../../entities/todoFindResult';
-import { Todo } from '../../../entities/todo';
-import { getOneTodoUsecase } from './getTodos.usecase';
+import { Todo } from '../../../entities/Todo';
 import { IFindOneTodo } from './entityGateways';
+import { getOneTodoUsecase } from './getTodos.usecase';
 import { TodoNotFoundError } from './todoNotFoundError';
 
-describe('Usecase - AddTodo', () => {
-  let usecase: getOneTodoUsecase;
+describe('getOneTodoUsecase', () => {
+  let findOneTodoMock: jest.Mocked<IFindOneTodo>;
+  let useCase: getOneTodoUsecase;
 
-  it('OK', async () => {
-    //arrange
-    const todoId = '1';
-    const findOneTodo: IFindOneTodo = {
-      execute: async function (id: string): Promise<Todo> {
-        const t = new Todo();
-        t.content = 'hello';
-        t.id = id;
-
-        return t;
-      },
+  beforeEach(() => {
+    findOneTodoMock = {
+      execute: jest.fn(),
     };
 
-    //act
-    usecase = new getOneTodoUsecase(findOneTodo);
-    const result: Todo = await usecase.execute(todoId);
-
-    //assert
-    expect(result.id).toBe(todoId);
+    useCase = new getOneTodoUsecase(findOneTodoMock);
   });
 
-  it('Todo not found', async () => {
-    //arrange
-    const todoId = '1';
-    const findOneTodo: IFindOneTodo = {
-      execute: async function (id: string): Promise<Todo> {
-        return null;
-      },
-    };
-    let exception: Error;
-    //act
-    try {
-      usecase = new getOneTodoUsecase(findOneTodo);
-      const result: Todo = await usecase.execute(todoId);
-    } catch (e) {
-      exception = e;
-    }
+  it('should find a Todo by ID', async () => {
+    const id = '1';
+    const todo = new Todo();
+    todo.id = '1';
+    todo.content = 'Test Todo';
+    todo.isDone = false;
 
-    //assert
-    expect(exception).toBeInstanceOf(TodoNotFoundError);
+    findOneTodoMock.execute.mockResolvedValueOnce(todo);
+
+    const result = await useCase.execute(id);
+
+    expect(findOneTodoMock.execute).toHaveBeenCalledWith(id);
+    expect(result).toEqual(todo);
+  });
+
+  it('should throw an error when the Todo is not found', async () => {
+    const id = '1';
+
+    findOneTodoMock.execute.mockResolvedValueOnce(null);
+
+    await expect(useCase.execute(id)).rejects.toThrowError(TodoNotFoundError);
   });
 });

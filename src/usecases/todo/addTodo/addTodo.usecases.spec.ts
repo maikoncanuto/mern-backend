@@ -1,31 +1,45 @@
-import { addTodoUseCases } from './addTodo.usecases';
-import { Todo } from '../../../entities/todo';
+import { Todo } from '../../../entities/Todo';
 import { ICanIChangeStatus, IInsertTodo } from './entityGateways';
+import { addTodoUseCases } from './addTodo.usecases';
 
-describe('Usecase - AddTodo', () => {
-  let usecase: addTodoUseCases;
+describe("addTodoUseCases", () => {
+  let insertTodoMock: jest.Mocked<IInsertTodo>;
+  let canIChangeStatusMock: jest.Mocked<ICanIChangeStatus>;
+  let useCase: addTodoUseCases;
 
-  it('OK', async () => {
-    //arrange
-    const insertedTodoId = '1';
-    const insertTodo: IInsertTodo = {
-      execute: async function (todo: Todo): Promise<Todo> {
-        todo.id = insertedTodoId;
-        return todo;
-      },
+  beforeEach(() => {
+    insertTodoMock = {
+      execute: jest.fn()
     };
 
-    const canIChangeStatus: ICanIChangeStatus = {
-      execute: function (todoId: number): boolean {
-        return true;
-      },
+    canIChangeStatusMock = {
+      execute: jest.fn()
     };
 
-    //act
-    usecase = new addTodoUseCases(insertTodo, canIChangeStatus);
-    const result: Todo = await usecase.execute('helloo');
+    useCase = new addTodoUseCases(insertTodoMock, canIChangeStatusMock);
+  });
 
-    //assert
-    expect(result.id).toBe(insertedTodoId);
+  it("should create a new Todo", async () => {
+    const content = "Test Todo";
+    const todo = new Todo();
+    todo.content = content;
+    todo.isDone = false;
+
+    canIChangeStatusMock.execute.mockReturnValueOnce(true);
+    insertTodoMock.execute.mockResolvedValueOnce(todo);
+
+    const result = await useCase.execute(content);
+
+    expect(canIChangeStatusMock.execute).toHaveBeenCalledWith(1);
+    expect(insertTodoMock.execute).toHaveBeenCalledWith(todo);
+    expect(result).toEqual(todo);
+  });
+
+  it("should throw an error when canIChangeStatus returns false", async () => {
+    const content = "Test Todo";
+
+    canIChangeStatusMock.execute.mockReturnValueOnce(false);
+
+    await expect(useCase.execute(content)).rejects.toThrowError("You cant change the ID");
   });
 });

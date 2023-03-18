@@ -2,9 +2,9 @@ import { Controller, Get, Query } from '@nestjs/common';
 import { ApiExtraModels, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiResponseType } from '../../common/swagger/response.decorator';
 import { GetTodoResponse as GetTodosResponse } from './getTodoResponse';
-import { FindTodos } from '../../../infrastructure/entityGateways/getTodos/findTodos';
+import { FindTodos } from '../../entityGateways/getTodos/findTodos';
 import { getTodosUsecase } from '../../../usecases/todo/getTodos/getTodos.usecase';
-import { GetTodosRequest } from './getTodos.requset';
+import { GetTodosRequest } from './getTodos.request';
 import { TodoFindResult } from 'entities/todoFindResult';
 
 @Controller('todo')

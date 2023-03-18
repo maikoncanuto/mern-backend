@@ -33,7 +33,7 @@ jobs:
 
                       echo $var_value
 
-                      line=${line//${BASH_REMATCH[0]}/${{  "${!var_value}" }}}
+                      line=${line//${BASH_REMATCH[0]}/${{ "${!var_value}" }}}
                     done
                     echo "$line" >> "${YAML_FILE}_new"
                   done < "$YAML_FILE"

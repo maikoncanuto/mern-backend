@@ -9,13 +9,10 @@ Code repository for MERN backend as Nest.js, Jest, DocumentDB, Node.js
 - [x] Swagger
 - [x] Validator
 - [x] MongoDB
-- [ ] rabbitmq/redis ?
-- [ ] localization
-- [ ] business exceptions
-- [ ] Packaging application
-- [ ] environments //also for docker ?
-- [ ] Docker
+- [x] Packaging application
+- [x] environments //also for docker ?
+- [x] Docker
 - [ ] PM2
-- [ ] github action
+- [x] github action
 - [x] Unit Tests
   - [x] Usecases 

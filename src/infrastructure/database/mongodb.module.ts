@@ -14,6 +14,7 @@ const importExports = [
 @Module({
   imports: [
     ...importExports,
+    // MongooseModule.forRoot(`mongodb+srv://gabinete-app:tqYvQVvBR3okmttT@aws-us-east-1-prd-gabin.gb75s.mongodb.net/?retryWrites=true&w=majority`, {
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       //MongooseModule.forRoot(

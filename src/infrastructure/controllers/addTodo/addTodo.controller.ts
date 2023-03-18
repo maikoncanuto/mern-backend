@@ -3,8 +3,8 @@ import { ApiExtraModels, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiResponseType } from '../../common/swagger/response.decorator';
 import { addTodoUseCases } from '../../../usecases/todo/addTodo/addTodo.usecases';
 import { AddTodoResponse } from './addTodo.response';
-import { InsertTodo } from '../../../infrastructure/entityGateways/addTodo/insertTodo';
-import { CanIChangeStatus } from '../../../infrastructure/entityGateways/addTodo/canIChangeStatus';
+import { InsertTodo } from '../../entityGateways/addTodo/insertTodo';
+import { CanIChangeStatus } from '../../entityGateways/addTodo/canIChangeStatus';
 import { AddTodoRequest } from './addTodo.request';
 
 @Controller('todo')

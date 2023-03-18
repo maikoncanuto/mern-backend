@@ -74,7 +74,7 @@ jobs:
         env:
           CI: true
 
-  change_version:
+  change-version:
     needs: [ scan-git, scan-config, scan-packages ]
     timeout-minutes: 1
     runs-on: ubuntu-latest
@@ -103,7 +103,7 @@ jobs:
         run: git push
 
   packages:
-    needs: [ change_version ]
+    needs: [ change-version ]
     timeout-minutes: 1
     runs-on: ubuntu-latest
 
@@ -117,7 +117,7 @@ jobs:
           node-version: ${{ env.ENV_NODE_VERSION }}
 
       - name: Install dependencies
-        run: npm ci --only=${{ env.ENV_NODE_ENV }}
+        run: npm ci --force
 
       - name: Cache node modules
         id: cache-npm
@@ -156,7 +156,7 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
 
       - name: Install Dependencies
-        run: npm ci
+        run: npm ci --force
 
       - name: Lint
         run: npm run lint
@@ -187,7 +187,7 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
 
       - name: Install Dependencies
-        run: npm ci
+        run: npm ci --force
 
       - name: Lint
         run: npm run test
@@ -218,7 +218,7 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
 
       - name: Install Dependencies
-        run: npm ci
+        run: npm ci --force
 
       - name: Lint
         run: npm run test:e2e
@@ -249,7 +249,7 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
 
       - name: Install Dependencies
-        run: npm ci
+        run: npm ci --force
 
       - name: Coverage
         run: npm run test:cov

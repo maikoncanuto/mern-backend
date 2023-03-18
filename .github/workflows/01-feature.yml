@@ -74,7 +74,7 @@ jobs:
         env:
           CI: true
 
-  change_version:
+  change-version:
     needs: [ scan-git, scan-config, scan-packages ]
     timeout-minutes: 1
     runs-on: ubuntu-latest

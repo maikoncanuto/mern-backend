@@ -61,7 +61,7 @@ jobs:
         env:
           CI: true
 
-  change_version:
+  change-version:
     needs: [ scan-config ]
     timeout-minutes: 1
     runs-on: ubuntu-latest

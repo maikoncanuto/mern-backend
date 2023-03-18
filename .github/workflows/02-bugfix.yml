@@ -39,7 +39,7 @@ jobs:
 
             - name: cat
               run: |
-                  echo "$GITHUB_ENV"
+                  echo $GITHUB_ENV
                   cat ./infra/kubernetes.yaml
 
     scan-git:

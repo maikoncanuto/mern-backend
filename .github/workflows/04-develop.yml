@@ -6,7 +6,7 @@ on:
 
 env:
   ENV_CHECKOUT_CACHE: 'npm'
-  ENV_NODE_VERSION: '16.x'
+  ENV_NODE_VERSION: '18.x'
   ENV_REGISTRY_URL: 'https://npm.pkg.github.com'
   ENV_NODE_ENV: 'development'
   ENV_GIT_USERNAME: 'Filipe Santos'
@@ -213,7 +213,6 @@ jobs:
       - name: Coverage
         run: npm run test:cov
 
-
   build-and-push-package:
     timeout-minutes: 1
     runs-on: ubuntu-latest
@@ -257,7 +256,7 @@ jobs:
 
       - name: Get Package Version
         run: |
-          export VERSION=$(node -p "require('./package.json').version")-${{ env.BRANCH_NAME }}.${{ github.run_id }}
+          export VERSION=$(node -p "require('./package.json').version")-snapshot
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Update version package.json
@@ -310,6 +309,8 @@ jobs:
           images: ghcr.io/${{ github.repository }}
           tags: |
             type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{version}}-snapshot,flavor=custom
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
@@ -328,7 +329,6 @@ jobs:
 
     permissions:
       security-events: write
-
       actions: read
       contents: read
 

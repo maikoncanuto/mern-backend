@@ -29,9 +29,11 @@ jobs:
                     while [[ $line =~ \$\{([a-zA-Z0-9_]+)\} ]]; do
                       var_name=${BASH_REMATCH[1]}
 
-                      var_value=$(echo "${!var_name}")
+                      var_value="vars.${!var_name}"
 
-                      line=${line//${BASH_REMATCH[0]}/$var_value}
+                      echo $var_value
+
+                      line=${line//${BASH_REMATCH[0]}/${{"$var_value"}}}
                     done
                     echo "$line" >> "${YAML_FILE}_new"
                   done < "$YAML_FILE"

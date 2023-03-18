@@ -31,7 +31,7 @@ jobs:
               var_name=${BASH_REMATCH[1]}
 
               # Obtém o valor da variável do Secret do GitHub
-              var_value=${{ $var_name }}
+              var_value=${var_name}
               # Substitui a variável no arquivo YAML
               line=${line//${BASH_REMATCH[0]}/$var_value}
             done

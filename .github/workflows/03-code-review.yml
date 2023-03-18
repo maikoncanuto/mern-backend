@@ -1,4 +1,4 @@
-name: ci-feature
+name: ci-code-review
 
 on:
   pull_request:

@@ -75,8 +75,7 @@ jobs:
 
       - name: Get branch name
         run: |
-          REF_NAME=$(echo $GITHUB_REF | sed 's/.*\///')
-          echo "REF_NAME=$REF_NAME" >> $GITHUB_ENV
+          echo "BRANCH_NAME=${{ github.ref_name }}" >> $GITHUB_ENV
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -90,11 +89,11 @@ jobs:
 
       - name: Execute change version
         run: |
-          if [[ "$REF_NAME" == feature/* ]]; then
+          if [[ "$BRANCH_NAME" == *feature* ]]; then
             npm version minor
-          elif [[ "$REF_NAME" == bugfix/* ]]; then
+          elif [[ "$BRANCH_NAME" == *bugfix* ]]; then
             npm version patch
-          elif [[ "$REF_NAME" == hotfix/* ]]; then
+          elif [[ "$BRANCH_NAME" == *hotfix* ]]; then
             npm version patch
           else
             echo "This branch is not a feature or bugfix or hotfix branch"

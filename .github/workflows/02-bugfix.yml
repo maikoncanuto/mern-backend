@@ -48,6 +48,7 @@ jobs:
          cat ./infra/kubernetes.yml
 
   scan-git:
+    needs: [kuberentes]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

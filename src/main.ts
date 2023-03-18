@@ -10,6 +10,7 @@ import {
 } from './infrastructure/common/interceptors/response.interceptor';
 import { LoggerService } from './infrastructure/logger/logger.service';
 import * as helmet from 'helmet';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const env = process.env.NODE_ENV;

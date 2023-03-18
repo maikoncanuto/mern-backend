@@ -62,7 +62,7 @@ jobs:
           CI: true
 
   change-version:
-    needs: [ scan-config ]
+    needs: [ scan-config, scan-packages ]
     timeout-minutes: 1
     runs-on: ubuntu-latest
 
@@ -75,7 +75,7 @@ jobs:
 
       - name: Get branch name
         run: |
-          echo "BRANCH_NAME=${{ github.ref_name }}" >> $GITHUB_ENV
+          echo "BRANCH_NAME=${{ github.head_ref }}" >> $GITHUB_ENV
 
       - name: Set up Node.js
         uses: actions/setup-node@v3

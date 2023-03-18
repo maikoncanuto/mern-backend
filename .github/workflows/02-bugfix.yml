@@ -29,8 +29,6 @@ jobs:
                     while [[ $line =~ \$\{([a-zA-Z0-9_]+)\} ]]; do
                       var_name=${BASH_REMATCH[1]}
 
-                      echo $GITHUB_ENV
-
                       var_value=$(echo "${!var_name}")
 
                       line=${line//${BASH_REMATCH[0]}/$var_value}
@@ -41,6 +39,7 @@ jobs:
 
             - name: cat
               run: |
+                  echo "$GITHUB_ENV"
                   cat ./infra/kubernetes.yaml
 
     scan-git:

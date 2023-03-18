@@ -95,7 +95,7 @@ jobs:
         run: git push
 
   packages:
-    needs: [ change_version ]
+    needs: [ change-version ]
     timeout-minutes: 1
     runs-on: ubuntu-latest
 

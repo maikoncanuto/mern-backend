@@ -16,16 +16,19 @@ const importExports = [
     ...importExports,
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
-      //MongooseModule.forRoot(
-      //  `mongodb://${process.env?.database_user}:${process.env?.database_password}@${process.env?.database_instance}/?tls=true&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false`,
-      //  {
       useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('MONGO_URI_CONNECTION'),
+        uri: `mongodb://${configService.get<string>(
+          'database_user',
+        )}:${configService.get<string>(
+          'database_password',
+        )}@${configService.get<string>(
+          'database_instance',
+        )}/?retryWrites=true&w=majority`,
         sslCA: `${__dirname}/certs/rds-combined-ca-bundle.pem`,
         useUnifiedTopology: true,
         useNewUrlParser: true,
         sslValidate: false,
-        ssl: process.env?.NODE_ENV !== 'local',
+        ssl: configService.get<string>('NODE_ENV') !== 'local',
       }),
       inject: [ConfigService],
     }),

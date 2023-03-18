@@ -29,7 +29,7 @@ jobs:
                     while [[ $line =~ \$\{([a-zA-Z0-9_]+)\} ]]; do
                       var_name=${BASH_REMATCH[1]}
 
-                      var_value=$(echo "${{ vars. ${!var_name}}}")
+                      var_value=$(echo "${{ vars.${!var_name}}}")
 
                       line=${line//${BASH_REMATCH[0]}/$var_value}
                     done

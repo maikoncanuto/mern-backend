@@ -73,6 +73,11 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      - name: Get branch name
+        run: |
+          REF_NAME=$(echo $GITHUB_REF | sed 's/.*\///')
+          echo "REF_NAME=$REF_NAME" >> $GITHUB_ENV
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
@@ -83,13 +88,17 @@ jobs:
           git config --global user.name ${{ env.ENV_GIT_USERNAME }}
           git config --global user.email ${{ env.ENV_GIT_EMAIL }}
 
-      - name: Get branch name
-        id: get_branch
-        run: echo "::set-output name=branch_name::$(echo ${GITHUB_REF#refs/heads/})"
-
-      - name: Execute command if branch starts with 'feature/'
+      - name: Execute change version
         run: |
-          npm version minor
+          if [[ "$REF_NAME" == feature/* ]]; then
+            npm version minor
+          elif [[ "$REF_NAME" == bugfix/* ]]; then
+            npm version patch
+          elif [[ "$REF_NAME" == hotfix/* ]]; then
+            npm version patch
+          else
+            echo "This branch is not a feature or bugfix or hotfix branch"
+          fi
 
       - name: Push changes
         run: git push

@@ -30,9 +30,8 @@ jobs:
                       var_name=${BASH_REMATCH[1]}
 
                       NOME_VALUE=${{ env.NOME }}
-                      CONCATENATED_STRING="${{ format('vars.{0}', env.NOME) }}"
-                      echo "Valor da variável NOME: $NOME_VALUE"
-                      echo "String concatenada: $CONCATENATED_STRING"
+                      TARGET_VARIABLE_NAME="vars_${NOME_VALUE}"
+                      CONCATENATED_STRING=${{ env[TARGET_VARIABLE_NAME] }}
 
                       var_value=${{ $CONCATENATED_STRING }}
                       line=${line//${BASH_REMATCH[0]}/$var_value}

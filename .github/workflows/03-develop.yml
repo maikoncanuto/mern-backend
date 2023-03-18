@@ -75,7 +75,7 @@ jobs:
 
       - name: Get branch name
         run: |
-          echo "BRANCH_NAME=${{ github.head_ref }}" >> $GITHUB_ENV
+          echo "BRANCH_NAME=${{ github.event.base_ref }}" >> $GITHUB_ENV
 
       - name: Set up Node.js
         uses: actions/setup-node@v3

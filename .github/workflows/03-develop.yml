@@ -14,6 +14,15 @@ env:
 
 jobs:
 
+  get-name-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Execute change version
+        run: |
+          REF_NAME="${GITHUB_HEAD_REF}"
+
+          echo $REF_NAME
+
   scan-config:
     runs-on: ubuntu-latest
     steps:
@@ -89,11 +98,15 @@ jobs:
 
       - name: Execute change version
         run: |
-          if [[ "$BRANCH_NAME" == *feature* ]]; then
+          REF_NAME="${GITHUB_HEAD_REF}"
+
+          echo $REF_NAME
+
+          if [[ "$REF_NAME" == *feature* ]]; then
             npm version minor
-          elif [[ "$BRANCH_NAME" == *bugfix* ]]; then
+          elif [[ "$REF_NAME" == *bugfix* ]]; then
             npm version patch
-          elif [[ "$BRANCH_NAME" == *hotfix* ]]; then
+          elif [[ "$REF_NAME" == *hotfix* ]]; then
             npm version patch
           else
             echo "This branch is not a feature or bugfix or hotfix branch"

@@ -28,7 +28,7 @@ jobs:
 
       - name: Replace Kubernetes Variables
         run: |
-          YAML_FILE="infra/kubernetes.yml"
+          YAML_FILE="infra/kubernetes.yaml"
           while IFS= read -r line; do
             while [[ $line =~ \$\{([a-zA-Z0-9_]+)\} ]]; do
               # Extrai o nome da variável

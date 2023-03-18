@@ -12,8 +12,37 @@ env:
   ENV_NODE_ENV: 'production'
   ENV_GIT_USERNAME: 'Filipe Santos'
   ENV_GIT_EMAIL: 'filipe.l.santos@galp.com'
+  ENV_KUBERNETES: 'dev'
 
 jobs:
+
+  kuberentes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Replace Kubernetes Variables
+        run: |
+          YAML_FILE="./infra/kubernetes.yml"
+          while IFS= read -r line; do
+            while [[ $line =~ \$\{([a-zA-Z0-9_]+)\} ]]; do
+              # Extrai o nome da variável
+              var_name=${BASH_REMATCH[1]}
+
+              # Obtém o valor da variável do Secret do GitHub
+              var_value=${{ $var_name }}
+              # Substitui a variável no arquivo YAML
+              line=${line//${BASH_REMATCH[0]}/$var_value}
+            done
+            echo "$line" >> "${YAML_FILE}_new"
+          done < "$YAML_FILE"
+          mv "${YAML_FILE}_new" "$YAML_FILE"
+
+      - name: cat
+        run: |
+         cat ./infra/kubernetes.yml
+
   scan-git:
     runs-on: ubuntu-latest
     steps:

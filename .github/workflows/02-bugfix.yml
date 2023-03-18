@@ -31,7 +31,7 @@ jobs:
 
                       echo $var_name
 
-                      var_value="vars."$(echo ${!var_name})
+                      var_value="vars."echo $var_name
 
                       echo $var_value
 

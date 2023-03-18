@@ -1,7 +1,7 @@
 apiVersion: external-secrets.io/v1beta1
 kind: SecretStore
 metadata:
-  name: mern-secret-${ENV_KUBERNETES}
+  name: ${ENV_K8_SECRET_STORE_METADATA_NAME}
 spec:
   provider:
     aws:
@@ -10,71 +10,71 @@ spec:
       auth:
         jwt:
           serviceAccountRef:
-            name: eso-sa-mern-project-mern-gov-${ENV_KUBERNETES}
+            name: ${ENV_K8_SECRET_STORE_SERVICE_ACCOUNT_REF}
 ---
 apiVersion: external-secrets.io/v1beta1
 kind: ExternalSecret
 metadata:
-  name: mern-external-secret-${ENV_KUBERNETES}
+  name: ${ENV_K8_EXTERNAL_SECRET_METADATA_NAME}
 spec:
   refreshInterval: 1h
   secretStoreRef:
-    name: mern-secret-${ENV_KUBERNETES}
+    name: ${ENV_K8_SECRET_STORE_METADATA_NAME}
     kind: SecretStore
   target:
-    name: mern-k8s-secret-${ENV_KUBERNETES}
+    name: ${ENV_K8_SECRET_NAME}
     creationPolicy: Owner
   data:
   - secretKey: external_cluster_user
     remoteRef:
-      key: mern-project/mern-gov-${ENV_KUBERNETES}
+      key: ${ENV_K8_EXTERNAL_SECRET_REMOTE_REF}
       property: external_cluster_user
   - secretKey: external_cluster_password
     remoteRef:
-      key: mern-project/mern-gov-${ENV_KUBERNETES}
+      key: ${ENV_K8_EXTERNAL_SECRET_REMOTE_REF}
       property: external_cluster_password
   - secretKey: external_cluster_instance
     remoteRef:
-      key: mern-project/mern-gov-${ENV_KUBERNETES}
+      key: ${ENV_K8_EXTERNAL_SECRET_REMOTE_REF}
       property: external_cluster_instance
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mern-gov-${ENV_KUBERNETES}-backend
+  name: ${ENV_K8_DEPLOYMENT_METADATA_NAME}
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: mern-gov-${ENV_KUBERNETES}-backend-app
-  replicas: 2
+      app.kubernetes.io/name: ${ENV_K8_DEPLOYMENT_METADATA_NAME}
+  replicas: ${ENV_K8_DEPLOYMENT_REPLICAS}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: mern-gov-${ENV_KUBERNETES}-backend-app
+        app.kubernetes.io/name: ${ENV_K8_DEPLOYMENT_METADATA_NAME}
     spec:
       containers:
-      - image: ghcr.io/galpenergia/mern-backend:latest
+      - image: ${ENV_K8_DEPLOYMENT_IMAGE}
         imagePullPolicy: Always
-        name: mern-gov-${ENV_KUBERNETES}-backend-app
+        name: ${ENV_K8_DEPLOYMENT_METADATA_NAME}
         ports:
         - containerPort: 8080
         env:
           - name: database_user
             valueFrom:
               secretKeyRef:
-                name: mern-k8s-secret-${ENV_KUBERNETES}
+                name: ${ENV_K8_SECRET_NAME}
                 key: external_cluster_user
                 optional: false 
           - name: database_instance
             valueFrom:
               secretKeyRef:
-                name: mern-k8s-secret-${ENV_KUBERNETES}
+                name: ${ENV_K8_SECRET_NAME}
                 key: external_cluster_instance
                 optional: false 
           - name: database_password
             valueFrom:
               secretKeyRef:
-                name: mern-k8s-secret-${ENV_KUBERNETES}
+                name: ${ENV_K8_SECRET_NAME}
                 key: external_cluster_password
                 optional: false
       imagePullSecrets:
@@ -83,7 +83,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: mern-gov-${ENV_KUBERNETES}-backend
+  name: ${ENV_K8_DEPLOYMENT_METADATA_NAME}
 spec:
   ports:
     - port: 80
@@ -91,12 +91,12 @@ spec:
       protocol: TCP
   type: NodePort
   selector:
-    app.kubernetes.io/name: mern-gov-${ENV_KUBERNETES}-backend-app
+    app.kubernetes.io/name: ${ENV_K8_DEPLOYMENT_METADATA_NAME}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: mern-gov-${ENV_KUBERNETES}-backend
+  name: ${ENV_K8_DEPLOYMENT_METADATA_NAME}
   annotations:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
@@ -109,6 +109,6 @@ spec:
           pathType: Prefix
           backend:
             service:
-              name: mern-gov-${ENV_KUBERNETES}-backend
+              name: ${ENV_K8_DEPLOYMENT_METADATA_NAME}
               port:
                 number: 80

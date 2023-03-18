@@ -17,6 +17,7 @@ jobs:
 
     kuberentes:
         runs-on: ubuntu-latest
+        environment: ${{ vars.ENVIRONMENT_STAGE }}
         steps:
             - name: Checkout source code
               uses: actions/checkout@v3
@@ -27,12 +28,17 @@ jobs:
                   while IFS= read -r line; do
                     while [[ $line =~ \$\{([a-zA-Z0-9_]+)\} ]]; do
                       var_name=${BASH_REMATCH[1]}
-                      var_value="${!var_name}"
+
+                      NOME_VALUE=${{ env.NOME }}
+                      CONCATENATED_STRING="${{ format('vars.{0}', env.NOME) }}"
+                      echo "Valor da variável NOME: $NOME_VALUE"
+                      echo "String concatenada: $CONCATENATED_STRING"
+
+                      var_value=${{ $CONCATENATED_STRING }}
                       line=${line//${BASH_REMATCH[0]}/$var_value}
                     done
                     echo "$line" >> "${YAML_FILE}_new"
                   done < "$YAML_FILE"
-
                   mv "${YAML_FILE}_new" "$YAML_FILE"
 
             - name: cat

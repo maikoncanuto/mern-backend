@@ -17,6 +17,7 @@ jobs:
 
     kuberentes:
         runs-on: ubuntu-latest
+        environment: development
         steps:
             - name: Checkout source code
               uses: actions/checkout@v3
@@ -27,7 +28,9 @@ jobs:
                   while IFS= read -r line; do
                     while [[ $line =~ \$\{([a-zA-Z0-9_]+)\} ]]; do
                       var_name=${BASH_REMATCH[1]}
-                      var_value="${!var_name}"
+
+                      var_value=${{ $(echo "${!var_name}") }}
+
                       line=${line//${BASH_REMATCH[0]}/$var_value}
                     done
                     echo "$line" >> "${YAML_FILE}_new"

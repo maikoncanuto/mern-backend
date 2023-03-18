@@ -114,7 +114,7 @@ jobs:
 
             - name: Push changes
               run: |
-                  git push origin ${{ github.head_ref }}
+                  git push -u origin ${{ github.head_ref }}
 
     packages:
         needs: [ change-version ]

@@ -1,4 +1,4 @@
-import { Todo } from '../../../entities/Todo';
+import { Todo } from '../../../entities/todo';
 import { ICanIChangeStatus, IInsertTodo } from './entityGateways';
 import { addTodoUseCases } from './addTodo.usecases';
 

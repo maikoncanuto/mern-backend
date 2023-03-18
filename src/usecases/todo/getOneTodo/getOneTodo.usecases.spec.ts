@@ -1,4 +1,4 @@
-import { Todo } from '../../../entities/Todo';
+import { Todo } from '../../../entities/todo';
 import { IFindOneTodo } from './entityGateways';
 import { getOneTodoUsecase } from './getTodos.usecase';
 import { TodoNotFoundError } from './todoNotFoundError';

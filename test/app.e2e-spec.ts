@@ -1,12 +1,7 @@
 import { MongoClient } from 'mongodb';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import { AppModule } from '../../src/app.module';
-import * as request from 'supertest';
 
 describe('Single Test MongoMemoryServer', () => {
-  let app: INestApplication;
   let con: MongoClient;
   let mongoServer: MongoMemoryServer;
 
@@ -25,7 +20,7 @@ describe('Single Test MongoMemoryServer', () => {
   });
 
   it('should successfully set & get information from the database using MongoMemoryServer', async () => {
-    const db = con.db(mongoServer.instanceInfo!.dbName);
+    const db = con.db(mongoServer.instanceInfo.dbName);
 
     expect(db).toBeDefined();
     const col = db.collection('test');

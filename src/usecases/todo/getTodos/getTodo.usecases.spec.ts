@@ -1,5 +1,4 @@
 import { TodoFindResult } from '../../../entities/todoFindResult';
-import { Todo } from '../../../entities/Todo';
 import { IFindTodos } from './entityGateways';
 import { getTodosUsecase } from './getTodos.usecase';
 
@@ -21,8 +20,20 @@ describe('getTodosUsecase', () => {
     const pageNumber = 1;
 
     const itens = [
-      { id: '1', content: 'Test Todo 1', isDone: false, createdDate: new Date(), updatedDate: new Date() },
-      { id: '2', content: 'Test Todo 2', isDone: true, createdDate: new Date(), updatedDate: new Date()},
+      {
+        id: '1',
+        content: 'Test Todo 1',
+        isDone: false,
+        createdDate: new Date(),
+        updatedDate: new Date(),
+      },
+      {
+        id: '2',
+        content: 'Test Todo 2',
+        isDone: true,
+        createdDate: new Date(),
+        updatedDate: new Date(),
+      },
     ];
 
     const todoFindResult: TodoFindResult = {
@@ -34,7 +45,11 @@ describe('getTodosUsecase', () => {
 
     const result = await useCase.execute(name, pageSize, pageNumber);
 
-    expect(findTodosMock.execute).toHaveBeenCalledWith(name, pageSize, pageNumber);
+    expect(findTodosMock.execute).toHaveBeenCalledWith(
+      name,
+      pageSize,
+      pageNumber,
+    );
     expect(result).toEqual(todoFindResult);
   });
 });

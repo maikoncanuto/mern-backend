@@ -5,6 +5,6 @@ export class TodoFindResult {
     this.todos = [];
   }
 
-  total: number = 0;
+  total = 0;
   todos: Array<Todo> = [];
 }

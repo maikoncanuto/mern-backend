@@ -1,4 +1,3 @@
-import { TodoFindResult } from '../../../entities/todoFindResult';
 import { Todo } from '../../../entities/Todo';
 import { IFindOneTodo } from './entityGateways';
 import { getOneTodoUsecase } from './getTodos.usecase';

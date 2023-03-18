@@ -43,10 +43,23 @@ describe('LoggingInterceptor', () => {
 
     const logSpy = jest.spyOn(loggerService, 'log');
 
-    interceptor.intercept(context as unknown as ExecutionContext, next as unknown as CallHandler).subscribe();
+    interceptor
+      .intercept(
+        context as unknown as ExecutionContext,
+        next as unknown as CallHandler,
+      )
+      .subscribe();
 
     expect(logSpy).toHaveBeenCalledTimes(2);
-    expect(logSpy).toHaveBeenNthCalledWith(1, `Incoming Request on ${request.path}`, `method=${request.method} ip=1.2.3.4`);
-    expect(logSpy).toHaveBeenNthCalledWith(2, `End Request for ${request.path}`, expect.stringContaining(`method=${request.method} ip=1.2.3.4 duration=`));
+    expect(logSpy).toHaveBeenNthCalledWith(
+      1,
+      `Incoming Request on ${request.path}`,
+      `method=${request.method} ip=1.2.3.4`,
+    );
+    expect(logSpy).toHaveBeenNthCalledWith(
+      2,
+      `End Request for ${request.path}`,
+      expect.stringContaining(`method=${request.method} ip=1.2.3.4 duration=`),
+    );
   });
 });

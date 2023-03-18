@@ -31,7 +31,10 @@ describe('AllExceptionFilter', () => {
     const request = { url: '/test', method: 'GET' };
     const response = { status: jest.fn().mockReturnThis(), json: jest.fn() };
     const host = createMockArgumentsHost(request, response);
-    const exception = new HttpException('Test exception', HttpStatus.BAD_REQUEST);
+    const exception = new HttpException(
+      'Test exception',
+      HttpStatus.BAD_REQUEST,
+    );
 
     allExceptionFilter.catch(exception, host as unknown as ArgumentsHost);
 
@@ -45,12 +48,13 @@ describe('AllExceptionFilter', () => {
     const host = createMockArgumentsHost(request, response);
     const exception = new Error('Test exception');
 
-    // Adicione o mock para o método error do LoggerService
-    jest.spyOn(loggerService, 'error').mockImplementation(() => {});
+    jest.spyOn(loggerService, 'error').mockImplementation(() => null);
 
     allExceptionFilter.catch(exception, host as unknown as ArgumentsHost);
 
-    expect(response.status).toHaveBeenCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+    expect(response.status).toHaveBeenCalledWith(
+      HttpStatus.INTERNAL_SERVER_ERROR,
+    );
     expect(response.json).toHaveBeenCalled();
   });
 });

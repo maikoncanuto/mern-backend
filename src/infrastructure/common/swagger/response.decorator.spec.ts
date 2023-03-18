@@ -21,9 +21,16 @@ describe('ApiResponseType', () => {
     // Verify the ApiResponse configuration
     expect(capturedOptions.isArray).toBe(false);
     expect(capturedOptions.schema.allOf).toHaveLength(2);
-    expect(capturedOptions.schema.allOf[0]).toEqual({ $ref: getSchemaPath(ResponseFormat) });
-    expect(capturedOptions.schema.allOf[1].properties.data).toEqual({ $ref: getSchemaPath(TestModel) });
-    expect(capturedOptions.schema.allOf[1].properties.isArray).toEqual({ type: 'boolean', default: false });
+    expect(capturedOptions.schema.allOf[0]).toEqual({
+      $ref: getSchemaPath(ResponseFormat),
+    });
+    expect(capturedOptions.schema.allOf[1].properties.data).toEqual({
+      $ref: getSchemaPath(TestModel),
+    });
+    expect(capturedOptions.schema.allOf[1].properties.isArray).toEqual({
+      type: 'boolean',
+      default: false,
+    });
 
     // Restore the original ApiOkResponse decorator
     (ApiOkResponse as any) = originalApiOkResponse;

@@ -37,13 +37,18 @@ describe('ResponseInterceptor', () => {
     const data = { message: 'Test data' };
     const next = createMockCallHandler(data);
 
-    interceptor.intercept(context as unknown as ExecutionContext, next as unknown as CallHandler).subscribe((response) => {
-      expect(response.data).toBe(data);
-      expect(response.isArray).toBe(false);
-      expect(response.path).toBe(request.path);
-      expect(response.duration).toMatch(/\d+ms/);
-      expect(response.method).toBe(request.method);
-    });
+    interceptor
+      .intercept(
+        context as unknown as ExecutionContext,
+        next as unknown as CallHandler,
+      )
+      .subscribe((response) => {
+        expect(response.data).toBe(data);
+        expect(response.isArray).toBe(false);
+        expect(response.path).toBe(request.path);
+        expect(response.duration).toMatch(/\d+ms/);
+        expect(response.method).toBe(request.method);
+      });
   });
 
   it('should set isArray to true for array data', () => {
@@ -55,8 +60,13 @@ describe('ResponseInterceptor', () => {
     const data = [{ message: 'Test data' }];
     const next = createMockCallHandler(data);
 
-    interceptor.intercept(context as unknown as ExecutionContext, next as unknown as CallHandler).subscribe((response) => {
-      expect(response.isArray).toBe(true);
-    });
+    interceptor
+      .intercept(
+        context as unknown as ExecutionContext,
+        next as unknown as CallHandler,
+      )
+      .subscribe((response) => {
+        expect(response.isArray).toBe(true);
+      });
   });
 });

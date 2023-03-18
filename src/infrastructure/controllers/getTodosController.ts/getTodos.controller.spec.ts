@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { FindTodos } from '../../entityGateways/getTodos/findTodos';
 import { TodoFindResult } from 'entities/todoFindResult';
-import { getTodosUsecase } from '../../../usecases/todo/getTodos/getTodos.usecase';
 import { GetTodosController } from './getTodos.controller';
 import { GetTodosRequest } from './getTodos.request';
 
@@ -27,7 +26,6 @@ const mockTodoFindResult: TodoFindResult = {
 
 describe('GetTodosController', () => {
   let controller: GetTodosController;
-  let findTodos: FindTodos;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -43,7 +41,7 @@ describe('GetTodosController', () => {
     }).compile();
 
     controller = module.get<GetTodosController>(GetTodosController);
-    findTodos = module.get<FindTodos>(FindTodos);
+    module.get<FindTodos>(FindTodos);
   });
 
   describe('addTodo', () => {

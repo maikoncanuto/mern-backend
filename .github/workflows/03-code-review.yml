@@ -99,6 +99,7 @@ jobs:
             - name: Checkout branch
               run: |
                   git checkout -b ${{ github.head_ref }}
+                  git pull
 
             - name: Execute change version
               run: |

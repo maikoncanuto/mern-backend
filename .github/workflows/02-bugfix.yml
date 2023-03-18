@@ -17,7 +17,7 @@ jobs:
 
     kuberentes:
         runs-on: ubuntu-latest
-        environment: ${{ vars.ENVIRONMENT_STAGE }}
+        environment: development
         steps:
             - name: Checkout source code
               uses: actions/checkout@v3
@@ -31,9 +31,8 @@ jobs:
 
                       NOME_VALUE=${{ env.NOME }}
                       TARGET_VARIABLE_NAME="vars_${NOME_VALUE}"
-                      CONCATENATED_STRING=${{ env[TARGET_VARIABLE_NAME] }}
 
-                      var_value=${{ $CONCATENATED_STRING }}
+                      var_value=${{ env[TARGET_VARIABLE_NAME] }}
                       line=${line//${BASH_REMATCH[0]}/$var_value}
                     done
                     echo "$line" >> "${YAML_FILE}_new"

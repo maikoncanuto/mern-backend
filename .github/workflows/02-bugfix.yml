@@ -31,9 +31,9 @@ jobs:
 
                       var_value="vars.${!var_name}"
 
-                      echo $var_value
+                      echo "VAR_VALUE=$var_value" >> $GITHUB_ENV
 
-                      line=${line//${BASH_REMATCH[0]}/${{ !var_value }}}
+                      line=${line//${BASH_REMATCH[0]}/echo ${{ env.VAR_VALUE }}}
                     done
                     echo "$line" >> "${YAML_FILE}_new"
                   done < "$YAML_FILE"

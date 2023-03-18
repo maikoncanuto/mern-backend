@@ -14,15 +14,6 @@ env:
 
 jobs:
 
-  get-name-branch:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Execute change version
-        run: |
-          REF_NAME="${GITHUB_REF##*/}"
-
-          echo $REF_NAME
-
   scan-config:
     runs-on: ubuntu-latest
     steps:
@@ -70,53 +61,8 @@ jobs:
         env:
           CI: true
 
-  change-version:
-    needs: [ scan-config, scan-packages ]
-    timeout-minutes: 1
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: write
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Get branch name
-        run: |
-          echo "BRANCH_NAME=${{ github.event.base_ref }}" >> $GITHUB_ENV
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.ENV_NODE_VERSION }}
-
-      - name: Configure git
-        run: |
-          git config --global user.name ${{ env.ENV_GIT_USERNAME }}
-          git config --global user.email ${{ env.ENV_GIT_EMAIL }}
-
-      - name: Execute change version
-        run: |
-          REF_NAME="${GITHUB_HEAD_REF}"
-
-          echo $REF_NAME
-
-          if [[ "$REF_NAME" == *feature* ]]; then
-            npm version minor
-          elif [[ "$REF_NAME" == *bugfix* ]]; then
-            npm version patch
-          elif [[ "$REF_NAME" == *hotfix* ]]; then
-            npm version patch
-          else
-            echo "This branch is not a feature or bugfix or hotfix branch"
-          fi
-
-      - name: Push changes
-        run: git push
-
   packages:
-    needs: [ change-version ]
+    needs: [ scan-packages, scan-config ]
     timeout-minutes: 1
     runs-on: ubuntu-latest
 

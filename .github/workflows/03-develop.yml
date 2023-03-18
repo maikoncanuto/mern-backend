@@ -8,12 +8,20 @@ env:
   ENV_CHECKOUT_CACHE: 'npm'
   ENV_NODE_VERSION: '16.x'
   ENV_REGISTRY_URL: 'https://npm.pkg.github.com'
-  ENV_NODE_ENV: 'production'
-  ENV_KUBERNETES: 'dev'
+  ENV_NODE_ENV: 'development'
   ENV_GIT_USERNAME: 'Filipe Santos'
   ENV_GIT_EMAIL: 'filipe.l.santos@galp.com'
 
 jobs:
+
+  get-name-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Execute change version
+        run: |
+          REF_NAME="${GITHUB_REF##*/}"
+
+          echo $REF_NAME
 
   scan-config:
     runs-on: ubuntu-latest
@@ -63,7 +71,7 @@ jobs:
           CI: true
 
   change-version:
-    needs: [ scan-config ]
+    needs: [ scan-config, scan-packages ]
     timeout-minutes: 1
     runs-on: ubuntu-latest
 
@@ -73,6 +81,10 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+
+      - name: Get branch name
+        run: |
+          echo "BRANCH_NAME=${{ github.event.base_ref }}" >> $GITHUB_ENV
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -84,13 +96,21 @@ jobs:
           git config --global user.name ${{ env.ENV_GIT_USERNAME }}
           git config --global user.email ${{ env.ENV_GIT_EMAIL }}
 
-      - name: Get branch name
-        id: get_branch
-        run: echo "::set-output name=branch_name::$(echo ${GITHUB_REF#refs/heads/})"
-
-      - name: Execute command if branch starts with 'feature/'
+      - name: Execute change version
         run: |
-          npm version minor
+          REF_NAME="${GITHUB_HEAD_REF}"
+
+          echo $REF_NAME
+
+          if [[ "$REF_NAME" == *feature* ]]; then
+            npm version minor
+          elif [[ "$REF_NAME" == *bugfix* ]]; then
+            npm version patch
+          elif [[ "$REF_NAME" == *hotfix* ]]; then
+            npm version patch
+          else
+            echo "This branch is not a feature or bugfix or hotfix branch"
+          fi
 
       - name: Push changes
         run: git push
@@ -300,23 +320,6 @@ jobs:
 
       - name: Install Dependencies
         run: npm ci --force
-
-      - name: Replace Kubernetes Variables
-        run: |
-          YAML_FILE="./infra/kubernetes.yml"
-          while IFS= read -r line; do
-            while [[ $line =~ \$\{([a-zA-Z0-9_]+)\} ]]; do
-              # Extrai o nome da variável
-              var_name=${BASH_REMATCH[1]}
-
-              # Obtém o valor da variável do Secret do GitHub
-              var_value=${{ ${!var_name} }}
-              # Substitui a variável no arquivo YAML
-              line=${line//${BASH_REMATCH[0]}/$var_value}
-            done
-            echo "$line" >> "${YAML_FILE}_new"
-          done < "$YAML_FILE"
-          mv "${YAML_FILE}_new" "$YAML_FILE"
 
       - name: Build Artifact
         run: npm run build

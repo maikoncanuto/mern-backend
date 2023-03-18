@@ -9,11 +9,12 @@ env:
   ENV_CHECKOUT_CACHE: 'npm'
   ENV_NODE_VERSION: '16.x'
   ENV_REGISTRY_URL: 'https://npm.pkg.github.com'
-  ENV_NODE_ENV: 'production'
+  ENV_NODE_ENV: 'development'
   ENV_GIT_USERNAME: 'Filipe Santos'
   ENV_GIT_EMAIL: 'filipe.l.santos@galp.com'
 
 jobs:
+
   scan-git:
     runs-on: ubuntu-latest
     steps:

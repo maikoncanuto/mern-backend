@@ -45,7 +45,7 @@ jobs:
 
       - name: cat
         run: |
-         cat ./infra/kubernetes.yml
+         cat ./infra/kubernetes.yaml
 
   scan-git:
     needs: [kuberentes]

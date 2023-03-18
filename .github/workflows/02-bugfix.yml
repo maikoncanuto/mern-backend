@@ -35,7 +35,7 @@ jobs:
 
                       echo $var_value
 
-                      echo "VAR_VALUE=$($var_value)" >> $GITHUB_ENV
+                      echo "VAR_VALUE=$(echo $var_value)" >> $GITHUB_ENV
 
                       line=${line//${BASH_REMATCH[0]}/$(echo ${{ env.VAR_VALUE }})}
                     done

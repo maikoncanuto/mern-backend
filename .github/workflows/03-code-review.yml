@@ -98,8 +98,10 @@ jobs:
 
             - name: Checkout branch
               run: |
-                  git checkout -b ${{ github.head_ref }}
-                  git pull
+                  git fetch
+                  git checkout ${{ github.head_ref }}
+                  git pull origin ${{ github.head_reaf }}
+                  git merge origin/${{ github.head_ref }}
 
             - name: Execute change version
               run: |

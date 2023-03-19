@@ -308,7 +308,8 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
-            type=semver,pattern={{version}}-snapshot,flavor=custom
+            type=semver,pattern={{version}}
+            type=semver,pattern={{version}}-release,flavor=custom
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4

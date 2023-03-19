@@ -1,39 +1,37 @@
 name: ci-feature
-
-on:
+'on':
   push:
     branches:
-      - 'feature/**'
-
+      - feature/**
+concurrency:
+  group: 'ci-feature-${{ github.workflow }}-${{ github.ref }}'
+  cancel-in-progress: true
 env:
-  ENV_CHECKOUT_CACHE: 'npm'
-  ENV_NODE_VERSION: '18.x'
+  ENV_CHECKOUT_CACHE: npm
+  ENV_NODE_VERSION: 18.x
   ENV_REGISTRY_URL: 'https://npm.pkg.github.com'
-  ENV_NODE_ENV: 'development'
-  ENV_GIT_USERNAME: 'Filipe Santos'
-  ENV_GIT_EMAIL: 'filipe.l.santos@galp.com'
-
+  ENV_NODE_ENV: development
+  ENV_GIT_USERNAME: Filipe Santos
+  ENV_GIT_EMAIL: filipe.l.santos@galp.com
 jobs:
-
   scan-git:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
-      - name: Validate if commit follows the pattern in description "#<number> - description"
+      - name: >-
+          Validate if commit follows the pattern in description "#<number> -
+          description"
         run: |
           if ! git log -1 --pretty=%B | grep -qE '.+'; then
             echo "Error: Commit description does not follow the pattern 'description'"
             exit 1
           fi
-
   scan-config:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
         uses: actions/checkout@v3
-
       - name: Validate package.json
         run: |
           PACKAGE_NAME=$(cat package.json | jq -r '.name')
@@ -60,66 +58,55 @@ jobs:
             echo "Warning: private attribute is set to true, changing to false"
             jq '.private = false' package.json > package.json.tmp && mv package.json.tmp package.json
           fi
-
   scan-packages:
     timeout-minutes: 5
     runs-on: ubuntu-latest
     continue-on-error: true
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-
       - name: Scan Packages
         run: npm audit
         env:
           CI: true
-
   change-version:
-    needs: [ scan-git, scan-config, scan-packages ]
-    timeout-minutes: 1
+    needs:
+      - scan-git
+      - scan-config
+      - scan-packages
+    timeout-minutes: 5
     runs-on: ubuntu-latest
-
     permissions:
       contents: write
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ env.ENV_NODE_VERSION }}
-
+          node-version: '${{ env.ENV_NODE_VERSION }}'
       - name: Configure git
         run: |
           git config --global user.name ${{ env.ENV_GIT_USERNAME }}
           git config --global user.email ${{ env.ENV_GIT_EMAIL }}
-
       - name: Change version package.json for feature-prerelease
         run: npm version prerelease
-
       - name: Push changes
         run: git push
-
   packages:
-    needs: [ change-version ]
-    timeout-minutes: 1
+    needs:
+      - change-version
+    timeout-minutes: 5
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ env.ENV_NODE_VERSION }}
-
+          node-version: '${{ env.ENV_NODE_VERSION }}'
       - name: Install dependencies
         run: npm ci --force
-
       - name: Cache node modules
         id: cache-npm
         uses: actions/cache@v3
@@ -127,24 +114,23 @@ jobs:
           cache-name: cache-node-modules
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          key: >-
+            ${{ runner.os }}-build-${{ env.cache-name }}-${{
+            hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
-
   quality-eslint:
-    timeout-minutes: 1
+    timeout-minutes: 5
     runs-on: ubuntu-latest
-    needs: [ packages ]
-
+    needs:
+      - packages
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ env.ENV_NODE_VERSION }}
-
+          node-version: '${{ env.ENV_NODE_VERSION }}'
       - name: Restore Cached Dependencies
         uses: actions/cache@v3
         id: npm-cache
@@ -152,30 +138,27 @@ jobs:
           cache-name: cache-node-modules
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          key: >-
+            ${{ runner.os }}-build-${{ env.cache-name }}-${{
+            hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
-
       - name: Install Dependencies
         run: npm ci
-
       - name: Lint
         run: npm run lint
-
   quality-test-unit:
-    timeout-minutes: 1
+    timeout-minutes: 5
     runs-on: ubuntu-latest
-    needs: [ packages ]
-
+    needs:
+      - packages
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ env.ENV_NODE_VERSION }}
-
+          node-version: '${{ env.ENV_NODE_VERSION }}'
       - name: Restore Cached Dependencies
         uses: actions/cache@v3
         id: npm-cache
@@ -183,30 +166,27 @@ jobs:
           cache-name: cache-node-modules
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          key: >-
+            ${{ runner.os }}-build-${{ env.cache-name }}-${{
+            hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
-
       - name: Install Dependencies
         run: npm ci
-
       - name: Lint
         run: npm run test
-
   quality-test-integration:
-    timeout-minutes: 1
+    timeout-minutes: 5
     runs-on: ubuntu-latest
-    needs: [ packages ]
-
+    needs:
+      - packages
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ env.ENV_NODE_VERSION }}
-
+          node-version: '${{ env.ENV_NODE_VERSION }}'
       - name: Restore Cached Dependencies
         uses: actions/cache@v3
         id: npm-cache
@@ -214,30 +194,27 @@ jobs:
           cache-name: cache-node-modules
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          key: >-
+            ${{ runner.os }}-build-${{ env.cache-name }}-${{
+            hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
-
       - name: Install Dependencies
         run: npm ci
-
       - name: Lint
-        run: npm run test:e2e
-
+        run: 'npm run test:e2e'
   quality-test-coverage:
-    timeout-minutes: 1
+    timeout-minutes: 5
     runs-on: ubuntu-latest
-    needs: [ packages ]
-
+    needs:
+      - packages
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ env.ENV_NODE_VERSION }}
-
+          node-version: '${{ env.ENV_NODE_VERSION }}'
       - name: Restore Cached Dependencies
         uses: actions/cache@v3
         id: npm-cache
@@ -245,12 +222,12 @@ jobs:
           cache-name: cache-node-modules
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          key: >-
+            ${{ runner.os }}-build-${{ env.cache-name }}-${{
+            hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
-
       - name: Install Dependencies
         run: npm ci
-
       - name: Coverage
-        run: npm run test:cov
+        run: 'npm run test:cov'

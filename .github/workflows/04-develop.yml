@@ -20,7 +20,7 @@ env:
 
 jobs:
   build-and-push-package:
-    timeout-minutes: 5
+    timeout-minutes: 6
     runs-on: ubuntu-latest
 
     permissions:

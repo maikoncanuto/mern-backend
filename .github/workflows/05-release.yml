@@ -65,21 +65,27 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+
+      - name: Get Package Version
+        run: |
+          export VERSION=$(node -p "require('./package.json').version")-release
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: '${{ github.actor }}'
           password: '${{ secrets.GITHUB_TOKEN }}'
+
       - name: 'Extract metadata (tags, labels) for Docker'
         id: meta
         uses: docker/metadata-action@v4
         with:
           images: 'ghcr.io/${{ github.repository }}'
           tags: |
-            type=ref,event=branch
-            type=semver,pattern={{version}}
-            type=semver,pattern={{version}}-release,flavor=custom
+            type=semver,pattern={{version}},value=$VERSION
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:

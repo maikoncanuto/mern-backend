@@ -2,7 +2,7 @@ name: ci-develop
 
 on:
   workflow_run:
-    ci: "ci-code-review"
+    workflows: ["ci-code-review"]
     branches: [develop]
     types: 
       - completed

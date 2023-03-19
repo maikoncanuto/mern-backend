@@ -40,15 +40,6 @@ jobs:
         with:
           node-version: '${{ env.ENV_NODE_VERSION }}'
 
-      - name: Get Package Version
-        run: |
-          export VERSION=$(node -p "require('./package.json').version")
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-
-      - name: Update version package.json
-        run: |
-          npm version ${{ env.VERSION }}
-
       - name: Install Dependencies
         run: npm ci --force
 

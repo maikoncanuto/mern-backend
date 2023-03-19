@@ -133,5 +133,5 @@ jobs:
       - name: Create Tag from code
         id: create_tag
         run: |
-          git tag -a v${{ env.$VERSION }} -m "Create tag from code master"
+          git tag -a v${{ env.VERSION }} -m "Create tag from code master"
           git push origin v${{ env.VERSION }}

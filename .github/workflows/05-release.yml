@@ -116,6 +116,11 @@ jobs:
     needs: [build-and-push-image]
     runs-on: ubuntu-latest
 
+    permissions:
+      actions: write
+      contents: write
+      packages: write
+
     steps:
       - name: Checkout do Repositório
         uses: actions/checkout@v3

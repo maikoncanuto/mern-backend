@@ -1,5 +1,4 @@
 import { TodoFindResult } from 'entities/todoFindResult';
-import { Todo } from '../../../entities/todo';
 import { IFindTodos } from './entityGateways';
 
 export class getTodosUsecase {

@@ -1,4 +1,3 @@
-import { TodoFindResult } from 'entities/todoFindResult';
 import { Todo } from '../../../entities/todo';
 import { IFindOneTodo } from './entityGateways';
 import { TodoNotFoundError } from './todoNotFoundError';

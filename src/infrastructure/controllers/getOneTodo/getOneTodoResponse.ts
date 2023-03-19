@@ -1,4 +1,4 @@
-import { Todo } from 'entities/todo';
+import { Todo } from '../../../entities/todo';
 
 export class GetOneTodoResponse {
   id: string;

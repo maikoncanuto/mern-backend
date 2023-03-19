@@ -1,12 +1,11 @@
-name: ci-bugfix
+name: ci-code-review
 
 on:
-  push:
-    branches:
-      - bugfix/**
+  pull_request:
+    branches: [develop]
 
 concurrency:
-  group: 'ci-bugfix-${{ github.workflow }}-${{ github.ref }}'
+  group: 'ci-code-review-${{ github.workflow }}-${{ github.ref }}'
   cancel-in-progress: true
 
 env:
@@ -38,6 +37,7 @@ jobs:
   scan-config:
     timeout-minutes: 5
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout source code
         uses: actions/checkout@v3
@@ -105,11 +105,32 @@ jobs:
           git config --global user.name ${{ env.ENV_GIT_USERNAME }}
           git config --global user.email ${{ env.ENV_GIT_EMAIL }}
 
-      - name: Change version package.json for bugfix-prerelease
-        run: npm version prerelease
+      - name: Checkout branch
+        run: |
+          git fetch
+          git checkout ${{ github.head_ref }}
+          git pull origin ${{ github.head_reaf }}
+          git merge origin/${{ github.head_ref }}
+
+      - name: Execute change version
+        run: |
+          REF_NAME="${GITHUB_HEAD_REF}"
+
+          echo $REF_NAME
+
+          if [[ "$REF_NAME" == *feature* ]]; then
+            npm version minor
+          elif [[ "$REF_NAME" == *bugfix* ]]; then
+            npm version patch
+          elif [[ "$REF_NAME" == *hotfix* ]]; then
+            npm version patch
+          else
+            echo "This branch is not a feature or bugfix or hotfix branch"
+          fi
 
       - name: Push changes
-        run: git push
+        run: |
+          git push -u origin ${{ github.head_ref }}
 
   packages:
     needs: [change-version]
@@ -169,7 +190,7 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
 
       - name: Install Dependencies
-        run: npm ci --force
+        run: npm ci
 
       - name: Lint
         run: npm run lint
@@ -202,7 +223,7 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
 
       - name: Install Dependencies
-        run: npm ci --force
+        run: npm ci
 
       - name: Lint
         run: npm run test
@@ -235,7 +256,7 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
 
       - name: Install Dependencies
-        run: npm ci --force
+        run: npm ci
 
       - name: Lint
         run: 'npm run test:e2e'
@@ -268,7 +289,7 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
 
       - name: Install Dependencies
-        run: npm ci --force
+        run: npm ci
 
       - name: Coverage
         run: 'npm run test:cov'

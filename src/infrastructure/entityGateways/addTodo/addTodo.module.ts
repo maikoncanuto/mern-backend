@@ -3,12 +3,7 @@ import { MongoDbModule } from '../../database/mongodb.module';
 import { CanIChangeStatus } from './canIChangeStatus';
 import { InsertTodo } from './insertTodo';
 
-//bubbles, I dont like repeats
-
-const providesExports = [
-  InsertTodo, //this will goes to db
-  CanIChangeStatus, // this will goes to an api etc.
-];
+const providesExports = [InsertTodo, CanIChangeStatus];
 
 @Module({
   imports: [MongoDbModule],

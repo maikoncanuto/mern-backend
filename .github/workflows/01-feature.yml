@@ -268,30 +268,30 @@ jobs:
       - name: Coverage
         run: 'npm run test:cov'
 
-quality-sonar:
-  timeout-minutes: 10
-  needs: [quality-test-coverage, quality-test-integration, quality-test-unit, quality-eslint]
-  runs-on: ubuntu-latest
+  quality-sonar:
+    timeout-minutes: 10
+    needs: [quality-test-coverage, quality-test-integration, quality-test-unit, quality-eslint]
+    runs-on: ubuntu-latest
 
-  steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-    - name: Scan
-      uses: SonarSource/sonarcloud-github-action@master
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-    - name: Gate Check
-      id: sonarqube-quality-gate-check
-      uses: sonarsource/sonarqube-quality-gate-action@master
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        scanMetadataReportFile: src/.scannerwork/report-task.txt
+      - name: Gate Check
+        id: sonarqube-quality-gate-check
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          scanMetadataReportFile: src/.scannerwork/report-task.txt
 
-    - name: "SonarQube Quality Gate Status"
-      run: echo "The Quality Gate status is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
+      - name: "SonarQube Quality Gate Status"
+        run: echo "The Quality Gate status is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"

@@ -1,0 +1,19 @@
+name: ci-workflow-scan-git
+
+on:
+    workflow_call:
+
+jobs:
+    scan-git:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+        - name: Checkout repository
+          uses: actions/checkout@v3
+
+        - name: Validate description commit
+          run: |
+              if ! git log -1 --pretty=%B | grep -qE '.+'; then
+                echo "Error: Commit description does not follow the pattern 'description'"
+                exit 1
+              fi

@@ -3,7 +3,7 @@ Code repository for MERN backend as Nest.js, Jest, DocumentDB, Node.js
 
 # TODOS
 
-- [x] Logger
+- [x] Loggerd
   - [x] Console 
   - [ ] Cloudwatch
 - [x] Swagger

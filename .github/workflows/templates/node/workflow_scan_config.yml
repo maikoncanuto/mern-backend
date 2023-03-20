@@ -1,0 +1,39 @@
+name: ci-workflow-scan-config
+
+on:
+    workflow_call:
+
+jobs:
+    scan-git:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+        - name: Checkout source code
+          uses: actions/checkout@v3
+
+        - name: Workflow to execuction config package.json
+          run: |
+              PACKAGE_NAME=$(cat package.json | jq -r '.name')
+              PRIVATE=$(cat package.json | jq -r '.private')
+              PUBLISH_CONFIG=$(cat package.json | jq '.publishConfig')
+              REPOSITORY=$(cat package.json | jq '.repository')
+
+              if [[ ! ${PACKAGE_NAME} =~ ^@[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$ ]]; then
+                echo "Error: attribute name is not in the format @<company>/<name>"
+                exit 1
+              fi
+
+              if [[ ${PUBLISH_CONFIG} == "null" ]]; then
+                echo "Error: publishConfig is required"
+                exit 1
+              fi
+
+              if [[ ${REPOSITORY} == "null" ]]; then
+                echo "Error: repository is required"
+                exit 1
+              fi
+
+              if [[ ${PRIVATE} == "true" ]]; then
+                echo "Warning: private attribute is set to true, changing to false"
+                jq '.private = false' package.json > package.json.tmp && mv package.json.tmp package.json
+              fi

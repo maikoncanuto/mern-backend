@@ -19,55 +19,13 @@ env:
 
 jobs:
     scan-git:
-        uses: ${{ github_repository }}/.github/workflows/templates/workflow_scan_git.yml
+        uses: ${{ github_repository }}/.github/workflows/templates/node/workflow_scan_git.yml
 
     scan-config:
-        timeout-minutes: 10
-        runs-on: ubuntu-latest
-
-        steps:
-            - name: Checkout source code
-              uses: actions/checkout@v3
-
-            - name: Validate package.json
-              run: |
-                  PACKAGE_NAME=$(cat package.json | jq -r '.name')
-                  PRIVATE=$(cat package.json | jq -r '.private')
-                  PUBLISH_CONFIG=$(cat package.json | jq '.publishConfig')
-                  REPOSITORY=$(cat package.json | jq '.repository')
-
-                  if [[ ! ${PACKAGE_NAME} =~ ^@[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$ ]]; then
-                    echo "Error: attribute name is not in the format @<company>/<name>"
-                    exit 1
-                  fi
-
-                  if [[ ${PUBLISH_CONFIG} == "null" ]]; then
-                    echo "Error: publishConfig is required"
-                    exit 1
-                  fi
-
-                  if [[ ${REPOSITORY} == "null" ]]; then
-                    echo "Error: repository is required"
-                    exit 1
-                  fi
-
-                  if [[ ${PRIVATE} == "true" ]]; then
-                    echo "Warning: private attribute is set to true, changing to false"
-                    jq '.private = false' package.json > package.json.tmp && mv package.json.tmp package.json
-                  fi
+        uses: ${{ github_repository }}/.github/workflows/templates/node/workflow_scan_config.yml
 
     scan-packages:
-        timeout-minutes: 5
-        runs-on: ubuntu-latest
-        continue-on-error: true
-
-        steps:
-            - name: Checkout Code
-              uses: actions/checkout@v3
-            - name: Scan Packages
-              run: npm audit
-              env:
-                  CI: true
+        uses: ${{ github_repository }}/.github/workflows/templates/node/workflow_scan_packages.yml
 
     change-version:
         needs: [ scan-git, scan-config, scan-packages ]

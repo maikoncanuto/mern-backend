@@ -19,7 +19,7 @@ env:
 
 jobs:
     scan-git:
-        uses: ./.github/workflows/templates/workflow_scan_git.yml
+        uses: ${{ github_repository }}/.github/workflows/templates/workflow_scan_git.yml
 
     scan-config:
         timeout-minutes: 5
@@ -95,8 +95,8 @@ jobs:
 
             - name: Push changes
               run: |
-                git pull
-                git push
+                  git pull
+                  git push
 
     packages:
         needs: [ change-version ]

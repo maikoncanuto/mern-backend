@@ -22,7 +22,7 @@ jobs:
         uses: ${{ github_repository }}/.github/workflows/templates/workflow_scan_git.yml
 
     scan-config:
-        timeout-minutes: 5
+        timeout-minutes: 10
         runs-on: ubuntu-latest
 
         steps:

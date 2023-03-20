@@ -105,7 +105,9 @@ jobs:
               run: npm version prerelease
 
             - name: Push changes
-              run: git push
+              run: |
+                git pull
+                git push
 
     packages:
         needs: [ change-version ]
